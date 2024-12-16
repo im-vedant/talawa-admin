@@ -11,18 +11,17 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import 'jest-location-mock';
 import { I18nextProvider } from 'react-i18next';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { store } from 'state/store';
 import { StaticMockLink } from 'utils/StaticMockLink';
 import i18n from 'utils/i18nForTest';
 import SubTags from './SubTags';
 import { MOCKS, MOCKS_ERROR_SUB_TAGS } from './SubTagsMocks';
 import { InMemoryCache, type ApolloLink } from '@apollo/client';
-
+import { vi } from 'vitest';
 const translations = {
   ...JSON.parse(
     JSON.stringify(
@@ -44,10 +43,11 @@ async function wait(ms = 500): Promise<void> {
   });
 }
 
-jest.mock('react-toastify', () => ({
+vi.mock('react-toastify', async () => ({
+  ...(await vi.importActual('react-toastify')),
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -98,6 +98,7 @@ const renderSubTags = (link: ApolloLink): RenderResult => {
                 element={<SubTags />}
               />
             </Routes>
+            <ToastContainer />
           </I18nextProvider>
         </Provider>
       </MemoryRouter>
@@ -107,15 +108,15 @@ const renderSubTags = (link: ApolloLink): RenderResult => {
 
 describe('Organisation Tags Page', () => {
   beforeEach(() => {
-    jest.mock('react-router-dom', () => ({
-      ...jest.requireActual('react-router-dom'),
-      useParams: () => ({ orgId: 'orgId' }),
+    vi.mock('react-router-dom', async () => ({
+      ...(await vi.importActual('react-router-dom')),
+      useParams: () => ({ orgId: 'orgId', tagId: '1' }),
     }));
     cache.reset();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     cleanup();
   });
 

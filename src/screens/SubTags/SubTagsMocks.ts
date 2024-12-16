@@ -472,7 +472,7 @@ export const MOCKS = [
       query: CREATE_USER_TAG,
       variables: {
         name: 'subTag 12',
-        organizationId: '123',
+        organizationId: 'orgId',
         parentTagId: '1',
       },
     },
